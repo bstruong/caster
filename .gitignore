@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+
+# uv / virtual environments
+.venv/
+.uv/
+
+# Data — real MLS exports are never committed
+data/*.parquet
+data/*.csv
+data/*.json
+!data/.gitkeep
+
+# Environment
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+caster.db
