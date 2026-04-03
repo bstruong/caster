@@ -4,10 +4,11 @@
 
 CREATE TABLE IF NOT EXISTS listings (
     listing_id        VARCHAR,        -- MLS # as-is
-    region            VARCHAR,        -- extracted prefix from MLS # (e.g. "SF")
+    street_address    VARCHAR,
     status            VARCHAR,        -- S / A / P
 
     list_price        INTEGER,        -- stripped of $ and commas
+    sale_price        INTEGER,        -- stripped of $ and commas
     square_feet       INTEGER,        -- stripped of commas
     lot_size_sqft     INTEGER,        -- stripped of "Lot SqFt" suffix and commas
 
@@ -26,6 +27,7 @@ CREATE TABLE IF NOT EXISTS listings (
     age_years         INTEGER,        -- nullable (~40% empty in sold exports)
 
     listing_date      DATE,
+    expiration_date   DATE,
     sale_date         DATE,
     close_date        DATE,
     off_market_date   DATE

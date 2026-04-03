@@ -9,6 +9,7 @@ Usage:
 
 import duckdb
 import pathlib
+import datetime
 
 DB_PATH = "caster.db"
 SCHEMA_PATH = "schema.sql"
@@ -34,23 +35,47 @@ def fetch_raw_rows(conn: duckdb.DuckDBPyConnection) -> list[dict]:
     return rows
 
 
+PROPERTY_TYPE_MAP = {
+    "Res. Single Family": "single_family",
+}
+
+
+def parse_date(value: str | None) -> datetime.date | None:
+    if not value:
+        return None
+
+    if isinstance(value, datetime.date):
+        return value
+
+    return datetime.datetime.strptime(value, "%m/%d/%Y").date()
+
+
+def parse_int(value: str | None) -> int | None:
+    if not value:
+        return None
+
+    return int(value)
+
+
 def transform_row(raw: dict) -> tuple:
     """
     Transform one raw_listings row into a values tuple for insertion.
 
     Column order must match the INSERT statement in insert_normalized():
-        listing_id, region, status,
-        list_price, square_feet, lot_size_sqft,
+        listing_id, status,
+        list_price, sale_price, square_feet, lot_size_sqft,
         bedrooms, full_baths, half_baths,
         property_type,
         postal_city, zip_code, area_number, area_name,
         days_on_market, age_years,
-        listing_date, sale_date, close_date, off_market_date
+        listing_date, expiration_date, sale_date, close_date, off_market_date
 
     Raw column reference:
         raw["S"]                  → status (keep as-is)
-        raw["MLS #"]              → listing_id (keep as-is); extract alphabetic prefix → region
+        raw["MLS #"]              → listing_id (keep as-is)
+        raw["Street Address"]     → street_address (keep as-is)
         raw["Price"]              → list_price (strip "$" and "," → int)
+        raw["Sale Price"]         → sale_price (strip "$" and "," → int)
         raw["DOM"]                → days_on_market (already int, nullable)
         raw["Beds Total"]         → bedrooms (already int)
         raw["Bths"]               → split on "|" → full_baths (int), half_baths (int)
@@ -63,13 +88,50 @@ def transform_row(raw: dict) -> tuple:
         raw["Area Name"]          → area_name (keep as-is)
         raw["Zip Code"]           → zip_code (cast to str)
         raw["column00"]           → DROP (row index artifact)
-        raw["Street Address"]     → DROP (not in canonical schema)
 
-    Date fields (listing_date, sale_date, close_date, off_market_date):
-        No source columns exist in this export — insert all four as None.
+    Date fields — all nullable, sourced via raw.get() since not all exports include them:
+        raw["Listing Date"]       → listing_date    (MM/DD/YYYY)
+        raw["Expiration Date"]    → expiration_date (MM/DD/YYYY)
+        raw["Sale Date"]          → sale_date       (MM/DD/YYYY)
+        raw["Close Date"]         → close_date      (MM/DD/YYYY)
+        raw["Off Market Date"]    → off_market_date (MM/DD/YYYY)
     """
-    # TODO(brian): implement this
-    raise NotImplementedError
+
+    listing_id = raw["MLS #"]
+    street_address = raw["Street Address"]
+    status = raw["S"]
+
+    list_price = parse_int(raw["Price"].replace("$", "").replace(",", ""))
+    sale_price = parse_int((raw.get("Sale Price") or "").replace("$", "").replace(",", ""))
+    days_on_market = parse_int(raw["DOM"])
+    
+    bedrooms = parse_int(raw["Beds Total"])
+    bathrooms = raw["Bths"].split("|")
+    full_baths = int(bathrooms[0])
+    half_baths = int(bathrooms[1])
+    square_feet = parse_int(raw["Sq Ft Total"].replace(",", ""))
+    lot_size_sqft = parse_int(raw["Lot Size"].replace(" Lot SqFt", "").replace(",", ""))
+
+    property_type = PROPERTY_TYPE_MAP.get(raw["Property Sub Type"], raw["Property Sub Type"]) 
+    age_years = parse_int(raw["Age"])
+    area_number = raw["Area #"]
+    area_name = raw["Area Name"]
+    postal_city = raw["Postal City"]
+    zip_code = raw["Zip Code"]
+
+    listing_date = parse_date(raw["Listing Date"])
+    expiration_date = parse_date(raw["Expiration Date"])
+    sale_date = parse_date(raw["Sale Date"])
+    close_date = parse_date(raw["Close Date"])
+    off_market_date = parse_date(raw["Off Market Date"])
+
+    return (listing_id, street_address, status,
+            list_price, sale_price, square_feet, lot_size_sqft,
+            bedrooms, full_baths, half_baths,
+            property_type,
+            postal_city, zip_code, area_number, area_name,
+            days_on_market, age_years,
+            listing_date, expiration_date, sale_date, close_date, off_market_date)
 
 
 def insert_normalized(conn: duckdb.DuckDBPyConnection, rows: list[tuple]) -> None:
@@ -79,14 +141,14 @@ def insert_normalized(conn: duckdb.DuckDBPyConnection, rows: list[tuple]) -> Non
     """
     conn.executemany("""
         INSERT INTO listings (
-            listing_id, region, status,
-            list_price, square_feet, lot_size_sqft,
+            listing_id, street_address, status,
+            list_price, sale_price, square_feet, lot_size_sqft,
             bedrooms, full_baths, half_baths,
             property_type,
             postal_city, zip_code, area_number, area_name,
             days_on_market, age_years,
-            listing_date, sale_date, close_date, off_market_date
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            listing_date, expiration_date, sale_date, close_date, off_market_date
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, rows)
     print(f"Inserted {len(rows)} rows into listings")
 
