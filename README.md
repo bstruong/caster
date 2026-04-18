@@ -1,41 +1,49 @@
 # CASTER — Real Estate Intelligence Platform
 
-Local-first MLS data platform. Ingests manual CSV exports, normalizes 
-inconsistent field formats, and exposes market signal tools via FastMCP 
-for agent-driven natural language queries.
-
-## Status
-
-| Phase | Step | Status |
-|---|---|---|
-| 1 — Data Foundation | Step 1: Ingest raw CSV → DuckDB | ✅ Complete |
-| 1 — Data Foundation | Step 2: Canonical schema (schema.sql) | ✅ Complete |
-| 1 — Data Foundation | Step 3: Python normalizer | ✅ Complete |
-| 1 — Data Foundation | Step 4: Load normalized data + sanity queries | ✅ Complete |
-| 2 — Agent Integration | Step 5: LLM schema mapper | 🔲 |
-| 2 — Agent Integration | Step 6: Harden MCP tools | 🔲 |
-| 3 — Close the Loop | Step 7: agent.py query loop | 🔲 |
-| 3 — Close the Loop | Step 8: README rewrite + resume bullets | 🔲 |
+Local-first MLS data pipeline. Ingests manual CSV exports, normalizes
+inconsistent field formats, and stores canonical records with full
+snapshot history for point-in-time queries.
 
 ## Stack
 
-- **DuckDB** — in-process analytical query engine
-- **FastMCP** — typed MCP tool server for agent integration
-- **Claude Haiku** — schema normalization + natural language queries
-- **uv** — package and environment management
+- **Ruby on Rails 8** — pipeline framework
+- **PostgreSQL** — primary data store
+- **Rake tasks** — pipeline execution
+
+## Pipeline
+
+```
+CSV → Ingest → Validate → Normalize → Store → Snapshot → Aggregate
+```
+
+| Stage | Description |
+|---|---|
+| Ingest | Raw CSV row preserved as-is in `raw_listings` |
+| Validate | Feed profile checked against CSV headers — loud failure on drift |
+| Normalize | Raw fields mapped to canonical schema via `FeedProfile` |
+| Store | Canonical record written to `listings` |
+| Snapshot | Append-only record written to `listing_snapshots` |
+| Aggregate | SQL views + query objects — read-only market signals |
+
+## Status
+
+| Phase | Description | Status |
+|---|---|---|
+| 1 — Rails Scaffold + Schema | Rails app + all five migrations | ✅ Complete |
+| 2 — Feed Profile | `FeedProfile`, `FeedColumn`, validator | 🔲 |
+| 3 — Ingest Layer | `RawListing` model, `Ingester` service, Rake task | 🔲 |
+| 4 — Normalization Layer | `Normalizer`, `ListingNormalizer`, snapshots | 🔲 |
+| 5 — Aggregate Layer | SQL views, query objects | 🔲 |
+| 6 — Pipeline Wiring | End-to-end Rake tasks, structured logging | 🔲 |
 
 ## Setup
+
 ```bash
-uv sync
-uv run python ingest.py data/CASTER_2.csv
-uv run server.py
+bundle install
+rails db:create db:migrate
 ```
 
 ## Data
 
-Manual CSV export from MLSListings / Matrix. Place exports in `data/`.
-`caster.db` is gitignored — regenerate via `ingest.py`.
-
-### Known limitations
-
-- **Zip Code** — DuckDB infers this column as `BIGINT` during CSV ingest, which would silently drop leading zeros (e.g. `01234` → `1234`). Current MLS exports cover SF Bay Area zip codes which all start with `9`, so this is not an issue today. If coverage expands to other regions, force the column to `VARCHAR` in `ingest.py`.
+Manual CSV exports from MLSListings / Matrix. Place exports in `data/`.
+Raw rows are preserved in `raw_listings` — never overwritten.
