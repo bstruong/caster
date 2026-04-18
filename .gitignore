@@ -23,3 +23,9 @@ data/*.json
 .idea/
 *.swp
 caster.db
+.aider*
+
+# Ignore key files for decrypting credentials and more.
+/config/*.key
+
+.claude/CLAUDE.local.md
