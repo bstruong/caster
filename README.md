@@ -30,9 +30,9 @@ CSV → Ingest → Validate → Normalize → Store → Snapshot → Aggregate
 | Phase | Description | Status |
 |---|---|---|
 | 1 — Rails Scaffold + Schema | Rails app + all five migrations | ✅ Complete |
-| 2 — Feed Profile | `FeedProfile`, `FeedColumn`, validator | 🔲 |
-| 3 — Ingest Layer | `RawListing` model, `Ingester` service, Rake task | 🔲 |
-| 4 — Normalization Layer | `Normalizer`, `ListingNormalizer`, snapshots | 🔲 |
+| 2 — Feed Profile | `FeedProfile`, `FeedColumn`, validator | ✅ Complete |
+| 3 — Ingest Layer | `RawListing` model, `Ingester` service, Rake task | ✅ Complete |
+| 4 — Normalization Layer | `Normalizer`, `ListingNormalizer`, snapshots | ✅ Complete |
 | 5 — Aggregate Layer | SQL views, query objects | 🔲 |
 | 6 — Pipeline Wiring | End-to-end Rake tasks, structured logging | 🔲 |
 
