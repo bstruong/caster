@@ -5,19 +5,18 @@ class Ingester
   end
 
   def ingest!
-    rows_ingested = 0
+    raw_listings = []
 
     CSV.foreach(@file_path, headers: true) do |row|
-      RawListing.create!(
+      raw_listings << RawListing.create!(
         feed_profile: @feed_profile,
-        raw_data: row.to_h,
-        source_file: @file_path,
-        ingested_at: Time.current
+        raw_data:     row.to_h,
+        source_file:  @file_path,
+        ingested_at:  Time.current
       )
-      rows_ingested += 1
     end
 
-    Rails.logger.info("Ingested #{rows_ingested} rows from #{@file_path}")
-    rows_ingested
+    Rails.logger.info("Ingested #{raw_listings.count} rows from #{@file_path}")
+    raw_listings
   end
 end
