@@ -34,7 +34,7 @@ CSV → Ingest → Validate → Normalize → Store → Snapshot → Aggregate
 | 3 — Ingest Layer | `RawListing` model, `Ingester` service, Rake task | ✅ Complete |
 | 4 — Normalization Layer | `Normalizer`, `ListingNormalizer`, snapshots | ✅ Complete |
 | 5 — Aggregate Layer | `MarketSummaryQuery`, `PriceTrendQuery` | ✅ Complete |
-| 6 — Pipeline Wiring | End-to-end Rake tasks, structured logging | 🔲 |
+| 6 — Pipeline Wiring | `caster:run`, `caster:validate`, full pipeline wiring | ✅ Complete |
 
 ## Setup
 
