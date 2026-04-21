@@ -16,9 +16,9 @@
 - Aggregates computed via SQL views and ActiveRecord query objects, read-only
 
 ## Conventions
-- No API layer
 - No frontend
 - Business logic lives in service objects, not models
+- API layer deferred until ARCHER (external consumer) is ready
 
 ## Data Model
 
@@ -126,52 +126,40 @@ Five tables: `feed_profiles`, `feed_columns`, `raw_listings`,
 - days_on_market          integer
 - created_at
 
-## Implementation Plan
+## Current State
 
-### Phase 1 — Rails Scaffold + Database Schema
-- `rails new caster --database=postgresql --skip-action-mailer
-  --skip-action-mailbox --skip-action-text --skip-active-storage
-  --skip-action-cable --skip-javascript`
-- Migrations in dependency order: feed_profiles → feed_columns →
-  raw_listings → listings → listing_snapshots
-- Indexes, constraints, and foreign keys enforced at DB level
-- No business logic yet — schema only
+All six phases complete. Pipeline is tested end-to-end with real MLSListings
+Matrix CSV exports.
 
-### Phase 2 — Feed Profile
-- `FeedProfile` model — defines expected columns for a given MLS feed
-- `FeedColumn` model — individual column definitions
-- Plain Ruby object: `FeedProfileValidator` — compares CSV headers
-  against profile, raises on drift
-- Loud failure: unknown or missing required columns raise, never
-  skip silently
+### Completed
+- Phase 1 — Rails scaffold + all five migrations
+- Phase 2 — `FeedProfile`, `FeedColumn`, `FeedProfileValidator`
+- Phase 3 — `Ingester` service, `caster:ingest` rake task
+- Phase 4 — `ListingNormalizer`, `Normalizer` service, snapshot writes
+- Phase 5 — `MarketSummaryQuery`, `PriceTrendQuery` (query objects, no SQL views)
+- Phase 6 — `caster:run`, `caster:validate` rake tasks
 
-### Phase 3 — Ingest Layer
-- `RawListing` model — preserves original CSV row as jsonb
-- Service object: `Ingester` — reads CSV, persists each row to
-  `raw_listings`
-- No transformation here — raw data lands exactly as received
-- Rake task: `caster:ingest[file_path]`
+### Rake Tasks
+- `caster:run[file_path]` — full pipeline: validate → ingest → normalize
+- `caster:validate[file_path]` — validation only, no ingestion
+- `caster:ingest[file_path]` — ingest only, no normalization
 
-### Phase 4 — Normalization Layer
-- Service object: `Normalizer` — maps raw fields to canonical schema
-  via `FeedProfile`
-- Plain Ruby object: `ListingNormalizer` — field-by-field
-  transformation logic
-- Persists canonical record to `listings`
-- Persists snapshot to `listing_snapshots` (append-only)
-- Raw record untouched after normalization
+### Query Objects
+- `MarketSummaryQuery.new(zip_code:, area_name:, status: "A").call`
+  Returns: listing count, avg/median list price, avg DOM, avg price/sqft
+- `PriceTrendQuery.new(zip_code:, area_name:, status: "A").call`
+  Returns: 12 monthly data points with avg/median price, DOM, list-to-sale ratio
 
-### Phase 5 — Aggregate Layer
-- SQL views: `market_summary`, `price_trends`, `inventory_levels`
-- ActiveRecord query objects: `MarketSummaryQuery`, `PriceTrendQuery`
-- Read-only — no writes in this layer
-- Queryable via Rails console
+## Roadmap
 
-### Phase 6 — Pipeline Wiring
-- Rake task: `caster:run[file_path]` — orchestrates full pipeline
-  end to end
-- Calls: Ingester → FeedProfileValidator → Normalizer → aggregates
-  refreshed
-- Structured logging at each stage
-- Rake task: `caster:validate[file_path]` — validation only, surfaces
-  drift without ingesting
+### Next
+- Seed data automation — `db/seeds.rb` for `FeedProfile` and `FeedColumn`
+  records so environment setup is repeatable without manual console work
+- `ListingNormalizer` refactor — currently hardcodes raw column names;
+  should resolve canonical fields dynamically via `FeedColumn` mappings
+
+### Future
+- Additional query objects (comps, absorption rate, inventory levels)
+- Support for multiple feed profiles / MLS sources
+- API layer — deferred until ARCHER (external consumer) is ready
+- Scheduled ingestion

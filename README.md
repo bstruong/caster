@@ -23,7 +23,7 @@ CSV → Ingest → Validate → Normalize → Store → Snapshot → Aggregate
 | Normalize | Raw fields mapped to canonical schema via `FeedProfile` |
 | Store | Canonical record written to `listings` |
 | Snapshot | Append-only record written to `listing_snapshots` |
-| Aggregate | SQL views + query objects — read-only market signals |
+| Aggregate | Query objects — read-only market signals |
 
 ## Status
 
@@ -41,9 +41,36 @@ CSV → Ingest → Validate → Normalize → Store → Snapshot → Aggregate
 ```bash
 bundle install
 rails db:create db:migrate
+rails db:seed
+```
+
+## Usage
+
+```bash
+# Run full pipeline
+rails caster:run[path/to/export.csv]
+
+# Validate only (no ingestion)
+rails caster:validate[path/to/export.csv]
+
+# Query market data (Rails console)
+MarketSummaryQuery.new(zip_code: "94131").call
+MarketSummaryQuery.new(area_name: "Sunnyside", status: "S").call
+PriceTrendQuery.new(zip_code: "94131").call
 ```
 
 ## Data
 
 Manual CSV exports from MLSListings / Matrix. Place exports in `data/`.
 Raw rows are preserved in `raw_listings` — never overwritten.
+
+## Roadmap
+
+| Item | Priority |
+|---|---|
+| Seed data automation (`db/seeds.rb`) | Next |
+| `ListingNormalizer` refactor — use `FeedColumn` mappings dynamically | Next |
+| Additional query objects (comps, absorption rate, inventory) | Future |
+| Support for multiple feed profiles / MLS sources | Future |
+| API layer (blocked on ARCHER consumer) | Future |
+| Scheduled ingestion | Future |
