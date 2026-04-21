@@ -28,4 +28,8 @@ caster.db
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
+# Rails tmp
+/tmp/*
+!/tmp/.keep
+
 .claude/CLAUDE.local.md
