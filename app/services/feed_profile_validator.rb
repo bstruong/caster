@@ -15,7 +15,7 @@ class FeedProfileValidator
   private
 
   def check_for_unknown_columns!
-    unknown = @headers - known_column_names
+    unknown = @headers.reject(&:blank?) - known_column_names
     raise UnknownColumnsError, "Unknown columns: #{unknown.join(', ')}" if unknown.any?
   end
 

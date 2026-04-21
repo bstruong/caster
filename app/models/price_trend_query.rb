@@ -12,16 +12,16 @@ class PriceTrendQuery
     scope
       .where("#{date_field} >= ?", 12.months.ago.beginning_of_month)
       .where.not(date_field => nil)
-      .group("DATE_TRUNC('month', #{date_field})")
-      .order("DATE_TRUNC('month', #{date_field})")
+      .group(Arel.sql("DATE_TRUNC('month', #{date_field})"))
+      .order(Arel.sql("DATE_TRUNC('month', #{date_field})"))
       .pluck(
-        "DATE_TRUNC('month', #{date_field})",
-        "AVG(list_price_cents)",
-        "PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY list_price_cents)",
-        "AVG(sale_price_cents)",
-        "PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY sale_price_cents)",
-        "AVG(days_on_market)",
-        "AVG(sale_price_cents::float / NULLIF(list_price_cents, 0))"
+        Arel.sql("DATE_TRUNC('month', #{date_field})"),
+        Arel.sql("AVG(list_price_cents)"),
+        Arel.sql("PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY list_price_cents)"),
+        Arel.sql("AVG(sale_price_cents)"),
+        Arel.sql("PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY sale_price_cents)"),
+        Arel.sql("AVG(days_on_market)"),
+        Arel.sql("AVG(sale_price_cents::float / NULLIF(list_price_cents, 0))")
       )
       .map do |row|
         {

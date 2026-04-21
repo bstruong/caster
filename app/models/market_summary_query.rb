@@ -10,10 +10,10 @@ class MarketSummaryQuery
 
   def call
     results = scope.pick(
-      "COUNT(*)",
-      "AVG(list_price_cents)",
-      "AVG(days_on_market)",
-      "AVG(list_price_cents::float / NULLIF(sq_ft_total, 0))"
+      Arel.sql("COUNT(*)"),
+      Arel.sql("AVG(list_price_cents)"),
+      Arel.sql("AVG(days_on_market)"),
+      Arel.sql("AVG(list_price_cents::float / NULLIF(sq_ft_total, 0))")
     )
 
     {

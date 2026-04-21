@@ -12,7 +12,7 @@ namespace :caster do
   task :validate, [ :file_path ] => :environment do |_t, args|
     feed_profile = FeedProfile.first!
     headers = CSV.read(args[:file_path], headers: true).headers
-    FeedProfileValidator.new(feed_profile, headers).validate!
+    FeedProfileValidator.new(headers, feed_profile).validate!
     puts "Validation passed."
   end
 
@@ -21,7 +21,7 @@ namespace :caster do
     feed_profile = FeedProfile.first!
 
     headers = CSV.read(args[:file_path], headers: true).headers
-    FeedProfileValidator.new(feed_profile, headers).validate!
+    FeedProfileValidator.new(headers, feed_profile).validate!
     puts "Validation passed."
 
     ingester = Ingester.new(args[:file_path], feed_profile)
@@ -29,7 +29,7 @@ namespace :caster do
     puts "Ingested #{raw_listings.count} rows."
 
     raw_listings.each do |raw_listing|
-      Normalizer.new(raw_listing, feed_profile).normalize!
+      Normalizer.new(raw_listing).normalize!
     end
     puts "Normalization complete."
   end
