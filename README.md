@@ -1,4 +1,4 @@
-# CASTER — Real Estate Intelligence Platform
+# Real Estate Market Intelligence Platform: Local-First MLS Pipeline
 
 Local-first MLS data pipeline. Ingests manual CSV exports, normalizes
 inconsistent field formats, and stores canonical records with full
@@ -72,5 +72,5 @@ Raw rows are preserved in `raw_listings` — never overwritten.
 | `ListingNormalizer` refactor — use `FeedColumn` mappings dynamically | Next |
 | Additional query objects (comps, absorption rate, inventory) | Future |
 | Support for multiple feed profiles / MLS sources | Future |
-| API layer (blocked on ARCHER consumer) | Future |
+| API layer (blocked on downstream consumer) | Future |
 | Scheduled ingestion | Future |
