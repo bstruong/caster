@@ -4,16 +4,16 @@ MLS data pipeline. Ingests manual CSV exports, normalizes inconsistent field for
 
 ## Data handling and MLS compliance
 
-CASTER processes MLS listing data exported from MLSListings, the multiple listing service that serves SAMCAR (San Mateo County Association of REALTORS) and surrounding Northern California associations. MLS listing data is provided under a limited, personal-use license to subscribed real estate professionals. Subscribers hold a revocable license to use the data for purposes permitted under the rules of their MLS; they do not own the underlying data.
+This project processes MLS listing data exported from MLSListings, the multiple listing service that serves SAMCAR (San Mateo County Association of REALTORS) and surrounding Northern California associations. MLS listing data is provided under a limited, personal-use license to subscribed real estate professionals. Subscribers hold a revocable license to use the data for purposes permitted under the rules of their MLS; they do not own the underlying data.
 
-For this reason, CASTER is intentionally designed to run locally only:
+For this reason, this project is intentionally designed to run locally only:
 
 - All ingestion, normalization, and storage happens on a single developer machine
 - No cloud deployments, no managed databases, no external sync of MLS exports
 - Sample CSVs and ingestion logs are excluded from version control via `.gitignore`
 - This project is not an IDX, VOW, or syndication implementation, and it does not display, distribute, or share MLS data with any third party
 
-Any extension of CASTER to cloud infrastructure would require explicit authorization from MLSListings under their vendor or licensee program. The design choices documented here reflect the conservative posture of a personal-use subscriber, not legal interpretation.
+Any extension of this project to cloud infrastructure would require explicit authorization from MLSListings under their vendor or licensee program. The design choices documented here reflect the conservative posture of a personal-use subscriber, not legal interpretation.
 
 **Source documents:**
 
