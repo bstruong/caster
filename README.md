@@ -1,8 +1,6 @@
 # Real Estate Market Intelligence Platform: MLS Data Pipeline
 
-Local-first MLS data pipeline. Ingests manual CSV exports, normalizes
-inconsistent field formats, and stores canonical records with full
-snapshot history for point-in-time queries.
+MLS data pipeline. Ingests manual CSV exports, normalizes inconsistent field formats, and stores canonical records with full snapshot history for point-in-time queries.
 
 ## Data handling and MLS compliance
 
