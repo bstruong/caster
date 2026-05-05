@@ -86,7 +86,6 @@ Raw rows are preserved in `raw_listings` — never overwritten.
 | Item | Priority |
 |---|---|
 | Seed data automation (`db/seeds.rb`) | Next |
-| `ListingNormalizer` refactor — use `FeedColumn` mappings dynamically | Next |
 | Additional query objects (comps, absorption rate, inventory) | Future |
 | Support for multiple feed profiles / MLS sources | Future |
 | API layer (blocked on downstream consumer) | Future |
