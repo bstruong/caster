@@ -1,0 +1,140 @@
+# Fixture data assumes "today" is 2026-05-02 (per project context).
+# 12-month window for PriceTrendQuery = 2025-05-01 onwards.
+#
+# Layout:
+#   sunnyvale_active_*   — 4 active listings, zip 94087, area "Sunnyvale"
+#   sunnyvale_sold_*     — 2 sold listings, zip 94087, area "Sunnyvale", with closed_at
+#   cupertino_active_*   — 1 active listing, zip 95014, area "Cupertino" (scope contrast)
+#   stale_listing        — 1 active listing with listed_at outside 12-month window
+
+sunnyvale_active_1:
+  raw_listing: raw_1
+  mls_number: ML00000001
+  listing_status: A
+  street_address: 100 Mathilda Ave
+  city: Sunnyvale
+  state: CA
+  zip_code: "94087"
+  mls_area_name: Sunnyvale
+  list_price_cents: 150000000   # $1,500,000
+  sq_ft_total: 1500
+  days_on_market: 10
+  listed_at: 2026-04-01
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+sunnyvale_active_2:
+  raw_listing: raw_2
+  mls_number: ML00000002
+  listing_status: A
+  street_address: 200 Mathilda Ave
+  city: Sunnyvale
+  state: CA
+  zip_code: "94087"
+  mls_area_name: Sunnyvale
+  list_price_cents: 175000000   # $1,750,000
+  sq_ft_total: 1750
+  days_on_market: 20
+  listed_at: 2026-03-15
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+sunnyvale_active_3:
+  raw_listing: raw_3
+  mls_number: ML00000003
+  listing_status: A
+  street_address: 300 Mathilda Ave
+  city: Sunnyvale
+  state: CA
+  zip_code: "94087"
+  mls_area_name: Sunnyvale
+  list_price_cents: 200000000   # $2,000,000
+  sq_ft_total: 2000
+  days_on_market: 30
+  listed_at: 2026-02-10
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+sunnyvale_active_4:
+  raw_listing: raw_4
+  mls_number: ML00000004
+  listing_status: A
+  street_address: 400 Mathilda Ave
+  city: Sunnyvale
+  state: CA
+  zip_code: "94087"
+  mls_area_name: Sunnyvale
+  list_price_cents: 225000000   # $2,250,000
+  sq_ft_total: 2250
+  days_on_market: 40
+  listed_at: 2025-11-05
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+sunnyvale_sold_1:
+  raw_listing: raw_5
+  mls_number: ML00000005
+  listing_status: S
+  street_address: 500 Mathilda Ave
+  city: Sunnyvale
+  state: CA
+  zip_code: "94087"
+  mls_area_name: Sunnyvale
+  list_price_cents: 180000000   # $1,800,000
+  sale_price_cents: 190000000   # $1,900,000
+  sq_ft_total: 1800
+  days_on_market: 15
+  listed_at: 2025-08-01
+  closed_at: 2025-09-15
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+sunnyvale_sold_2:
+  raw_listing: raw_6
+  mls_number: ML00000006
+  listing_status: S
+  street_address: 600 Mathilda Ave
+  city: Sunnyvale
+  state: CA
+  zip_code: "94087"
+  mls_area_name: Sunnyvale
+  list_price_cents: 210000000   # $2,100,000
+  sale_price_cents: 205000000   # $2,050,000
+  sq_ft_total: 2100
+  days_on_market: 25
+  listed_at: 2025-12-01
+  closed_at: 2026-01-20
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+cupertino_active_1:
+  raw_listing: raw_7
+  mls_number: ML00000007
+  listing_status: A
+  street_address: 700 Stevens Creek Blvd
+  city: Cupertino
+  state: CA
+  zip_code: "95014"
+  mls_area_name: Cupertino
+  list_price_cents: 300000000   # $3,000,000
+  sq_ft_total: 2500
+  days_on_market: 5
+  listed_at: 2026-04-20
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+stale_listing:
+  raw_listing: raw_8
+  mls_number: ML00000008
+  listing_status: A
+  street_address: 800 Old Listing Way
+  city: Sunnyvale
+  state: CA
+  zip_code: "94087"
+  mls_area_name: Sunnyvale
+  list_price_cents: 100000000   # $1,000,000
+  sq_ft_total: 1000
+  days_on_market: 500
+  listed_at: 2024-01-01            # outside 12-month window — for PriceTrendQuery exclusion test
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
