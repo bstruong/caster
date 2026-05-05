@@ -29,8 +29,7 @@ caster.db
 /config/*.key
 
 # Rails tmp and logs
-/tmp/*
-!/tmp/.keep
+/tmp/
 /log/*
 !/log/.keep
 
