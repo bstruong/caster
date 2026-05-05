@@ -1,0 +1,7 @@
+<% 8.times do |i| %>
+raw_<%= i + 1 %>:
+  feed_profile: mlslistings_matrix
+  raw_data: '{}'
+  source_file: test_fixture.csv
+  ingested_at: <%= Time.current %>
+<% end %>

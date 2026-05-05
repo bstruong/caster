@@ -1,0 +1,6 @@
+mlslistings_matrix:
+  name: MLSListings Matrix
+  source_identifier: mlslistings_matrix
+  description: Manual CSV exports from MLSListings Matrix
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
