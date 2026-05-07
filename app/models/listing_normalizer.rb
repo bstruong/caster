@@ -1,18 +1,18 @@
 class ListingNormalizer
   CONVERTERS = {
-    "mls_number" => :string,
-    "listing_status" => :string,
-    "street_address" => :string,
-    "city" => :string,
-    "state" => :string,
-    "zip_code" => :string,
-    "mls_area_id" => :string,
-    "mls_area_name" => :string,
-    "property_type" => :string,
-    "property_sub_type" => :string,
-    "construction_type" => :string,
-    "building_type" => :string,
-    "parking_features" => :string,
+    "mls_number" => :passthrough,
+    "listing_status" => :passthrough,
+    "street_address" => :passthrough,
+    "city" => :passthrough,
+    "state" => :passthrough,
+    "zip_code" => :passthrough,
+    "mls_area_id" => :passthrough,
+    "mls_area_name" => :passthrough,
+    "property_type" => :passthrough,
+    "property_sub_type" => :passthrough,
+    "construction_type" => :passthrough,
+    "building_type" => :passthrough,
+    "parking_features" => :passthrough,
     "bedrooms" => :integer,
     "parking_spaces" => :integer,
     "garage_spaces" => :integer,
@@ -28,8 +28,9 @@ class ListingNormalizer
     "latitude" => :decimal,
     "longitude" => :decimal,
     "sq_ft_total" => :sq_ft,
-    "lot_size_sqft" => :lot_size,
-    "baths" => :baths
+    "lot_size_sqft" => :lot_size
+    # "baths" handled separately in #normalize — splits one raw value into
+    # full_baths + half_baths, doesn't fit the one-canonical-name-per-entry shape.
   }.freeze
 
   def initialize(raw_data, feed_profile)
@@ -38,66 +39,44 @@ class ListingNormalizer
   end
 
   def normalize
-    CONVERTERS.each_with_object({}) do |(canonical_name, type), result|
-      result.merge!(convert(field(canonical_name), type, canonical_name))
-    end
+    result = CONVERTERS.map { |canonical, type|
+      [ canonical.to_sym, convert(type, field(canonical)) ]
+    }.to_h
+    result.merge(baths_pair)
   end
 
   private
 
-  def convert(value, type, name)
-    case type
-    when :string then convert_string(value, name)
-    when :integer then convert_integer(value, name)
-    when :price_cents then convert_price_cents(value, name)
-    when :date then convert_date(value, name)
-    when :decimal then convert_decimal(value, name)
-    when :sq_ft then convert_sq_ft(value, name)
-    when :lot_size then convert_lot_size(value, name)
-    when :baths then convert_baths(value)
-    end
+  attr_reader :raw_data, :mappings
+
+  def convert(type, value)
+    return nil if value.blank?
+    send(type, value)
   end
 
-  def field(canonical_name)
-    raw_name = @mappings.fetch(canonical_name)
-    @raw_data[raw_name]
+  def field(canonical)
+    raw_name = mappings.fetch(canonical)
+    raw_data[raw_name]
   end
 
-  def convert_string(value, name)
-    { name.to_sym => value.presence }
+  def passthrough(value) = value
+  def integer(value)     = value.to_i
+  def price_cents(value) = (value.gsub(/[$,]/, "").to_f * 100).to_i
+  def date(value)        = Date.strptime(value, "%m/%d/%Y")
+  def decimal(value)     = value.to_d
+
+  def sq_ft(value)
+    i = value.gsub(",", "").to_i
+    i.zero? ? nil : i
   end
 
-  def convert_integer(value, name)
-    { name.to_sym => value.blank? ? nil : value.to_i }
-  end
-
-  def convert_price_cents(value, name)
-    return { name.to_sym => nil } if value.blank?
-    { name.to_sym => (value.gsub(/[$,]/, "").to_f * 100).to_i }
-  end
-
-  def convert_date(value, name)
-    return { name.to_sym => nil } if value.blank?
-    { name.to_sym => Date.strptime(value, "%m/%d/%Y") }
-  end
-
-  def convert_decimal(value, name)
-    { name.to_sym => value.blank? ? nil : value.to_d }
-  end
-
-  def convert_sq_ft(value, name)
-    return { name.to_sym => nil } if value.blank?
-    sq_ft = value.gsub(",", "").to_i
-    { name.to_sym => (sq_ft.zero? ? nil : sq_ft) }
-  end
-
-  def convert_lot_size(value, name)
-    return { name.to_sym => nil } if value.blank?
+  def lot_size(value)
     cleaned = value.gsub(/Lot SqFt|,/, "").strip
-    { name.to_sym => cleaned.empty? ? nil : cleaned.to_i }
+    cleaned.empty? ? nil : cleaned.to_i
   end
 
-  def convert_baths(value)
+  def baths_pair
+    value = field("baths")
     return { full_baths: nil, half_baths: nil } if value.blank?
     full, half = value.split("|")
     { full_baths: full.to_i, half_baths: half&.to_i }

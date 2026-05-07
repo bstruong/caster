@@ -1,0 +1,47 @@
+# One row per CONVERTERS entry in app/models/listing_normalizer.rb.
+# Raw column names are illustrative test values — they don't have to match a
+# real MLSListings export, since the normalizer just looks up
+# raw_data[raw_column_name] via this mapping.
+
+<%
+mappings = {
+  "mls_number"          => "MLS Number",
+  "listing_status"      => "S",
+  "street_address"      => "Address",
+  "city"                => "City",
+  "state"               => "State",
+  "zip_code"            => "Zip",
+  "mls_area_id"         => "Area",
+  "mls_area_name"       => "Area Name",
+  "property_type"       => "Property Type",
+  "property_sub_type"   => "Property Sub Type",
+  "construction_type"   => "Construction Type",
+  "building_type"       => "Building Type",
+  "parking_features"    => "Parking Features",
+  "bedrooms"            => "Bd",
+  "parking_spaces"      => "Parking Spaces",
+  "garage_spaces"       => "Garage Spaces",
+  "age_years"           => "Age",
+  "days_on_market"      => "DOM",
+  "list_price_cents"    => "Price",
+  "sale_price_cents"    => "Sale Price",
+  "listed_at"           => "Listed Date",
+  "expires_at"          => "Expires Date",
+  "sale_agreed_at"      => "Sale Agreed Date",
+  "off_market_at"       => "Off Market Date",
+  "closed_at"           => "Closed Date",
+  "latitude"            => "Latitude",
+  "longitude"           => "Longitude",
+  "sq_ft_total"         => "Sq Ft Total",
+  "lot_size_sqft"       => "Lot Size",
+  "baths"               => "Bths"
+}
+%>
+<% mappings.each do |canonical, raw| %>
+mlslistings_<%= canonical %>:
+  feed_profile: mlslistings_matrix
+  canonical_field_name: <%= canonical %>
+  raw_column_name: <%= raw.inspect %>
+  required: false
+  created_at: <%= Time.current %>
+<% end %>
