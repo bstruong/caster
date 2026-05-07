@@ -110,3 +110,23 @@ secondary findings remain:
 | S6 | Stop reading entire CSV just to get headers | `lib/tasks/caster.rake` |
 
 Suggested order: S5 → S1 → S4 → S2 → S3 + S6 (smallest scope and most pedagogical first).
+
+## Parity backlog
+
+Coding-practice gaps relative to SABER (sibling Ruby project, same author),
+identified during a 2026-05-06 parity scan. These are not bugs or refactor
+smells — they are conventions SABER follows that CASTER does not yet. Goal
+is consistency across both projects so a reader pulling them down side by
+side sees the same author's discipline applied uniformly.
+
+| ID | Practice | Status in CASTER | Suggested move |
+|---|---|---|---|
+| D1 | Idiom comments at top of services / extracted methods (`# Single Responsibility — …`, `# Tell, don't ask`, `# Strategy as callable`) | None | Sweep `app/services/` and `app/models/*_query.rb`. Add one-line idiom comments where the pattern applies; skip where it doesn't. |
+| D4 | Service entry convention — `def self.call(...) = new(...).call` with `#call` as the single public method | Mixed (`Normalizer#normalize!`, `Ingester#ingest!`, `FeedProfileValidator#validate!`; queries already use `.call`) | Rename entry methods to `#call`. Add the `.call` class-method shortcut. Update rake task call sites. |
+| D5 | String-backed enum / constant for listing status (single source of truth) | Bare strings (`"A"`, `"S"`) used in queries, normalizer, listings | Same item as S5 in the refactoring backlog. `Listing::STATUS = { active: "A", sold: "S", ... }.freeze` or `enum :listing_status, ...`. |
+| D3 | Dependency injection in service objects | Not practiced — collaborators (`ListingNormalizer`, `CSV` reader) instantiated inline | Constructor-inject collaborators with sensible defaults: `def initialize(raw_listing, normalizer: ListingNormalizer)`. Enables stub-injection in specs. |
+| D6 | CLAUDE.md depth — explicit Sandi POODR + Olsen checklist as a top-level project doc | Lives in `.claude/CLAUDE.local.md` (private) | Lift the Sandi check / Olsen check sub-sections into `.claude/CLAUDE.md` so the public project doc mirrors SABER's depth. |
+| D2 | Test data via FactoryBot + Shoulda Matchers + Webmock | YAML fixtures only; no FactoryBot, Shoulda, or Webmock gems | Add gems, convert `spec/fixtures/*.yml` to `spec/factories/*.rb`. Add Shoulda one-liners for validation/association specs. |
+
+Suggested order: **D1 → D4 → D5 → D3 → D6 → D2** (cheapest and most visible first).
+D5 is already on the refactoring backlog as S5; the two converge.

@@ -207,6 +207,9 @@ Matrix CSV exports.
   `~/.claude/projects/-home-brian-projects-caster/memory/project_audit_findings.md`
   — small, mostly independent cleanups (Arel.sql whitelist, status constants,
   validator error base class, etc.)
+- Six parity items (D1–D6) documented in `README.md#parity-backlog` — gaps
+  vs sibling project SABER (idiom comments, `.call` service convention,
+  status enum, dependency injection, CLAUDE.md depth, FactoryBot)
 
 ### Future
 
