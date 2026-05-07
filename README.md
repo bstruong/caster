@@ -26,6 +26,7 @@ Any extension of this project to cloud infrastructure would require explicit aut
 - **Ruby on Rails 8** — pipeline framework
 - **PostgreSQL** — primary data store
 - **Rake tasks** — pipeline execution
+- **RSpec** — test framework (`bundle exec rspec`)
 
 ## Pipeline
 
@@ -90,3 +91,22 @@ Raw rows are preserved in `raw_listings` — never overwritten.
 | Support for multiple feed profiles / MLS sources | Future |
 | API layer (blocked on downstream consumer) | Future |
 | Scheduled ingestion | Future |
+
+## Refactoring backlog
+
+Quality cleanup items from a Sandi Metz / Russ Olsen audit. Four primary
+refactors shipped (`ListingNormalizer` driven off `feed_columns`,
+`ListingScope` and `Cents` extraction, snapshot creation extracted from
+`Normalizer`, send-dispatch registry replacing case-on-type). Six
+secondary findings remain:
+
+| ID | Item | File |
+|---|---|---|
+| S1 | Whitelist `Arel.sql` interpolation in `date_field` | `app/models/price_trend_query.rb` |
+| S2 | Replace imperative array build with `each_with_object`; consider yielding rows | `app/services/ingester.rb` |
+| S3 | Extract `Pipeline` orchestrator; deduplicate `FeedProfile.first!` lookups | `lib/tasks/caster.rake` |
+| S4 | Collapse two `pluck` queries via `partition`; add shared error base class | `app/services/feed_profile_validator.rb` |
+| S5 | Extract `Listing::STATUS` constant for status code single-source-of-truth | `app/models/listing.rb` |
+| S6 | Stop reading entire CSV just to get headers | `lib/tasks/caster.rake` |
+
+Suggested order: S5 → S1 → S4 → S2 → S3 + S6 (smallest scope and most pedagogical first).
