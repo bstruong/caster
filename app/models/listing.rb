@@ -10,4 +10,11 @@ class Listing < ApplicationRecord
   validates :zip_code, presence: true
   validates :list_price_cents, presence: true
   validates :listed_at, presence: true
+
+  def self.upsert_from(attributes)
+    listing = find_or_initialize_by(mls_number: attributes[:mls_number])
+    listing.assign_attributes(attributes)
+    listing.save!
+    listing
+  end
 end
