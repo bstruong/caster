@@ -18,6 +18,7 @@ No frontend. No API. No external consumers yet — the pipeline is the product.
 - Plain Ruby objects for domain logic
 - ActiveRecord for persistence only
 - Rake tasks for pipeline execution
+- RSpec for testing (specs in `spec/`, fixtures in `spec/fixtures/`)
 
 ---
 
@@ -202,8 +203,10 @@ Matrix CSV exports.
 
 - Seed data automation — `db/seeds.rb` for `FeedProfile` and `FeedColumn`
   records so environment setup is repeatable without manual console work
-- `ListingNormalizer` refactor — currently hardcodes raw column names;
-  should resolve canonical fields dynamically via `FeedColumn` mappings
+- Six audit secondary findings (S1–S6) documented in
+  `~/.claude/projects/-home-brian-projects-caster/memory/project_audit_findings.md`
+  — small, mostly independent cleanups (Arel.sql whitelist, status constants,
+  validator error base class, etc.)
 
 ### Future
 
