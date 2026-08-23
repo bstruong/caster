@@ -6,7 +6,7 @@ class PriceTrendQuery
 
   def call
     @relation
-      .where("#{date_field} >= ?", 12.months.ago.beginning_of_month)
+      .where(date_field => 12.months.ago.beginning_of_month..)
       .where.not(date_field => nil)
       .group(Arel.sql("DATE_TRUNC('month', #{date_field})"))
       .order(Arel.sql("DATE_TRUNC('month', #{date_field})"))

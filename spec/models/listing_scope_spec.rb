@@ -11,7 +11,7 @@ RSpec.describe ListingScope do
 
     it "filters by area name" do
       scope = ListingScope.new(zip_code: nil, area_name: "Cupertino", status: "A")
-      expect(scope.to_relation.pluck(:mls_number)).to eq(["ML00000007"])
+      expect(scope.to_relation.pluck(:mls_number)).to eq([ "ML00000007" ])
     end
 
     it "filters by status" do

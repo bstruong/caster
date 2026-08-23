@@ -155,22 +155,22 @@ RSpec.describe ListingNormalizer do
 
     it "normalizes a representative raw row end-to-end" do
       raw = {
-        "MLS Number" => "ML00000001",
-        "S" => "A",
-        "Address" => "100 Mathilda Ave",
-        "City" => "Sunnyvale",
-        "State" => "CA",
-        "Zip" => "94087",
-        "Area Name" => "Sunnyvale",
-        "Bd" => "4",
-        "Bths" => "2|1",
+        "MLS Number"  => "ML00000001",
+        "S"           => "A",
+        "Address"     => "100 Mathilda Ave",
+        "City"        => "Sunnyvale",
+        "State"       => "CA",
+        "Zip"         => "94087",
+        "Area Name"   => "Sunnyvale",
+        "Bd"          => "4",
+        "Bths"        => "2|1",
         "Sq Ft Total" => "1,500",
-        "Lot Size" => "5,000 Lot SqFt",
-        "Price" => "$1,500,000",
+        "Lot Size"    => "5,000 Lot SqFt",
+        "Price"       => "$1,500,000",
         "Listed Date" => "04/01/2026",
-        "DOM" => "10",
-        "Latitude" => "37.3688",
-        "Longitude" => "-122.0363"
+        "DOM"         => "10",
+        "Latitude"    => "37.3688",
+        "Longitude"   => "-122.0363"
       }
       result = normalize(raw)
 
