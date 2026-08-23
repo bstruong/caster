@@ -5,22 +5,22 @@ RSpec.describe Normalizer do
 
   let(:raw_data) do
     {
-      "MLS Number"   => "ML00099999",
-      "S"            => "A",
-      "Address"      => "999 Test Ave",
-      "City"         => "Sunnyvale",
-      "State"        => "CA",
-      "Zip"          => "94087",
-      "Area Name"    => "Sunnyvale",
-      "Bd"           => "3",
-      "Bths"         => "2|1",
-      "Sq Ft Total"  => "1,800",
-      "Lot Size"     => "5,500 Lot SqFt",
-      "Price"        => "$1,800,000",
-      "Listed Date"  => "04/01/2026",
-      "DOM"          => "12",
-      "Latitude"     => "37.3688",
-      "Longitude"    => "-122.0363"
+      "MLS Number"  => "ML00099999",
+      "S"           => "A",
+      "Address"     => "999 Test Ave",
+      "City"        => "Sunnyvale",
+      "State"       => "CA",
+      "Zip"         => "94087",
+      "Area Name"   => "Sunnyvale",
+      "Bd"          => "3",
+      "Bths"        => "2|1",
+      "Sq Ft Total" => "1,800",
+      "Lot Size"    => "5,500 Lot SqFt",
+      "Price"       => "$1,800,000",
+      "Listed Date" => "04/01/2026",
+      "DOM"         => "12",
+      "Latitude"    => "37.3688",
+      "Longitude"   => "-122.0363"
     }
   end
 
