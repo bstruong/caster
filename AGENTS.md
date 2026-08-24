@@ -86,9 +86,36 @@ Five tables: `feed_profiles`, `feed_columns`, `raw_listings`, `listings`,
 - `W` — Withdrawn (anticipated)
 - `C` — Contingent (anticipated)
 
-No `Listing::STATUS` constant exists yet — status codes above are
-convention only, not enforced in code. See Not Started / Stubbed below
-for the planned enum.
+All six values are enforced in code by a Rails enum on `Listing`
+(`app/models/listing.rb`) and, as defense-in-depth, by a database CHECK
+constraint named `listings_listing_status_check`.
+
+Note there is no `Listing::STATUS` constant — the enum itself is the
+source of truth, and Rails exposes the mapping as `Listing.listing_statuses`.
+
+As implemented, in Rails 8.1 keyword syntax:
+
+```ruby
+enum :listing_status, {
+  active:     "A",
+  sold:       "S",
+  pending:    "P",
+  expired:    "E",
+  withdrawn:  "W",
+  contingent: "C"
+}
+```
+
+The enum is declared without `validate: true` on purpose: assigning an
+off-vocabulary value raises `ArgumentError` at assignment time rather than
+being collected as a validation error, per the loud-failures principle. The
+separate `validates :listing_status, presence: true` still covers nil/blank.
+
+Only `A` and `S` occur in data today; `P`/`E`/`W`/`C` are accepted but not
+yet produced by any feed.
+
+`listing_snapshots` deliberately has neither the enum nor the constraint —
+it is an append-only historical record, not a live business object.
 
 ### Normalization Rules
 
@@ -194,30 +221,13 @@ a real dataset end-to-end in that environment as far as is confirmed.
 - Phase 4 — `ListingNormalizer`, `Normalizer` service, snapshot writes
 - Phase 5 — `MarketSummaryQuery`, `PriceTrendQuery` (query objects, no SQL views)
 - Phase 6 — `caster:run`, `caster:validate` rake tasks
+- `db/seeds.rb` — `FeedProfile` + 30 `FeedColumn` rows for the MLSListings
+  Matrix feed
+- `listing_status` Rails enum on `Listing` + `listings_listing_status_check`
+  database CHECK constraint
 
 ### Not Started / Stubbed
 
-- `db/seeds.rb` — default Rails scaffold comment only, no `FeedProfile`/
-  `FeedColumn` seed data
-- `Listing::STATUS` constant / enum — status codes are convention-only
-  today. **Planned, not yet implemented:** a Rails enum on `Listing`,
-  matching the current `listing_status` string column and the vocabulary
-  above:
-
-  ```ruby
-  enum listing_status: {
-    active:      "A",
-    sold:        "S",
-    pending:     "P",
-    expired:     "E",
-    withdrawn:   "W",
-    contingent:  "C"
-  }
-  ```
-
-  No migration needed — `listing_status` is already a `string` column
-  storing these raw values. Do not add this to `app/models/listing.rb`
-  unless asked.
 - Comps, absorption rate, inventory-level query objects
 - Multi-feed-profile / multi-MLS-source support
 - API layer (blocked on a future external-consumer project)

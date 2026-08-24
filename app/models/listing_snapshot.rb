@@ -11,7 +11,7 @@ class ListingSnapshot < ApplicationRecord
       listing:          listing,
       raw_listing:      raw_listing,
       snapshot_date:    Date.current,
-      listing_status:   listing.listing_status,
+      listing_status:   listing.listing_status_before_type_cast,
       list_price_cents: listing.list_price_cents,
       sale_price_cents: listing.sale_price_cents,
       days_on_market:   listing.days_on_market

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_18_013157) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_24_230923) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -81,6 +81,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_013157) do
     t.string "zip_code", null: false
     t.index ["mls_number"], name: "index_listings_on_mls_number", unique: true
     t.index ["raw_listing_id"], name: "index_listings_on_raw_listing_id"
+    t.check_constraint "listing_status::text = ANY (ARRAY['A'::character varying, 'S'::character varying, 'P'::character varying, 'E'::character varying, 'W'::character varying, 'C'::character varying]::text[])", name: "listings_listing_status_check"
   end
 
   create_table "raw_listings", force: :cascade do |t|
