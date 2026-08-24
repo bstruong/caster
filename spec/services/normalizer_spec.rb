@@ -108,7 +108,8 @@ RSpec.describe Normalizer do
     it "snapshot reflects the listing's normalized state" do
       listing = Normalizer.new(raw_listing).normalize!
       snapshot = listing.listing_snapshots.last
-      expect(snapshot.listing_status).to eq(listing.listing_status)
+      # Raw code, not the enum label -- see listing_snapshot_spec.
+      expect(snapshot.listing_status).to eq("A")
       expect(snapshot.list_price_cents).to eq(listing.list_price_cents)
       expect(snapshot.days_on_market).to eq(listing.days_on_market)
     end

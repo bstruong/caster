@@ -25,9 +25,54 @@ RSpec.describe ListingSnapshot do
       end
     end
 
-    it "copies listing_status from the listing" do
+    it "copies the raw listing_status code, not the enum label" do
       snapshot = ListingSnapshot.capture(listing, raw_listing)
-      expect(snapshot.listing_status).to eq(listing.listing_status)
+      # Asserted as a literal rather than against listing.listing_status:
+      # Listing has an enum so that accessor returns "active", while
+      # listing_snapshots stores raw codes. Comparing the two accessors is
+      # what let the label leak into snapshots go unnoticed.
+      expect(snapshot.listing_status).to eq("A")
+      expect(listing.listing_status).to eq("active")
+    end
+
+    # Every code in the vocabulary, not just "A". A plain each-loop rather than
+    # shared_examples: this repo uses shared_examples nowhere, and the mapping is
+    # flat tabular data (spec/fixtures/feed_columns.yml drives its rows the same
+    # way). Attributes are built in memory against a fixture raw_listing, mirroring
+    # spec/models/listing_spec.rb, instead of adding five more YAML fixtures.
+    #
+    # Assignment is by RAW CODE because that is what really happens:
+    # ListingNormalizer maps listing_status as :passthrough, so the CSV's code
+    # reaches Listing untouched. Going through Listing.upsert_from also matches
+    # Normalizer's real path and guarantees the record is saved before capture
+    # reads listing_status_before_type_cast -- pre-save that accessor can still
+    # hand back a label.
+    {
+      "A" => "active",
+      "S" => "sold",
+      "P" => "pending",
+      "E" => "expired",
+      "W" => "withdrawn",
+      "C" => "contingent"
+    }.each do |code, label|
+      it "stores raw code #{code.inspect} in the snapshot while the listing reads #{label.inspect}" do
+        listing = Listing.upsert_from(
+          mls_number:       "MLSTATUS#{code}",
+          listing_status:   code,
+          street_address:   "1 Status Way",
+          city:             "Sunnyvale",
+          state:            "CA",
+          zip_code:         "94087",
+          list_price_cents: 100_000_000,
+          listed_at:        Date.new(2026, 4, 1),
+          raw_listing:      raw_listing
+        )
+
+        snapshot = ListingSnapshot.capture(listing, raw_listing)
+
+        expect(snapshot.listing_status).to eq(code)
+        expect(listing.listing_status).to eq(label)
+      end
     end
 
     it "copies list_price_cents from the listing" do
