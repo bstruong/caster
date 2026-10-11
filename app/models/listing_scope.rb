@@ -4,6 +4,7 @@ class ListingScope
   def initialize(zip_code: nil, area_name: nil, status: "A")
     raise ArgumentError, "Provide zip_code or area_name, not both" if zip_code && area_name
     raise ArgumentError, "zip_code or area_name is required" if zip_code.nil? && area_name.nil?
+    raise ArgumentError, "Invalid status: #{status}" if status.nil? || status.empty?
 
     @zip_code = zip_code
     @area_name = area_name

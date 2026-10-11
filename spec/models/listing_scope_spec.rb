@@ -32,6 +32,18 @@ RSpec.describe ListingScope do
         ListingScope.new(zip_code: nil, area_name: nil, status: "A")
       }.to raise_error(ArgumentError, "zip_code or area_name is required")
     end
+
+    it "raises when status is nil" do
+      expect {
+        ListingScope.new(zip_code: "94087", area_name: nil, status: nil)
+      }.to raise_error(ArgumentError, "Invalid status: ")
+    end
+
+    it "raises when status is empty string" do
+      expect {
+        ListingScope.new(zip_code: "94087", area_name: nil, status: "")
+      }.to raise_error(ArgumentError, "Invalid status: ")
+    end
   end
 
   describe "#status" do
